@@ -11,10 +11,10 @@ function calculateBonusByProfit(index, total, seller) {
 
     if (index === 0) {
         bonus = profit * 0.15;
+    } else if (index === total - 1 && total > 1) { // Проверка, что последний — это не первый
+        bonus = 0;
     } else if (index === 1 || index === 2) {
         bonus = profit * 0.1;
-    } else if (index === total - 1) {
-        bonus = 0;
     } else {
         bonus = profit * 0.05;
     }
