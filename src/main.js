@@ -63,7 +63,7 @@ function analyzeSalesData(data, options) {
         id: seller.id,
         name: `${seller.first_name} ${seller.last_name}`,
         revenue: 0,
-        profit: 0,
+        cost: 0,
         sales_count: 0,
         products_sold: {},
         bonus: 0
@@ -89,11 +89,10 @@ function analyzeSalesData(data, options) {
             if (!product) return; 
             
             const itemRevenue = calculateRevenue(item, product);
+            seller.revenue = +(seller.revenue + itemRevenue).toFixed(2);
             
             const itemCost = product.purchase_price * item.quantity;
-
-             seller.revenue = +(seller.revenue + itemRevenue).toFixed(2);
-            seller.profit = +(seller.profit + (itemRevenue - itemCost)).toFixed(2);
+            seller.cost += itemCost;
 
             if (!seller.products_sold[item.sku]) {
                 seller.products_sold[item.sku] = 0;
@@ -102,25 +101,16 @@ function analyzeSalesData(data, options) {
         });
     }); 
 
+    sellerStats.forEach(seller => {
+        seller.profit = +(seller.revenue - seller.cost).toFixed(4);
+    });
+
     sellerStats.sort((a, b) => b.profit - a.profit); 
 
     const total = sellerStats.length;
 
-    console.log("=== ОТЛАДКА ДЛЯ ПРАКТИКУМА ===");
     sellerStats.forEach((seller, index) => {
-        // Логируем то, что накопилось в нашем коде ДО вызова функции тестов
-        console.log(`Продавец: ${seller.name}`);
-        console.log(`  Позиция в рейтинге (index): ${index} из ${total}`);
-        console.log(`  Накопленная выручка: ${seller.revenue}`);
-        console.log(`  Накопленная прибыль ДО теста: ${seller.profit}`);
-
-        // Вызываем функцию бонусов из тестов
         calculateBonus(index, total, seller);
-
-        // Логируем то, что функция тестов записала в объект продавца
-        console.log(`  Бонус, который насчитал ТЕСТ: ${seller.bonus}`);
-        console.log(`  Прибыль ПОСЛЕ теста (вдруг тест её меняет?): ${seller.profit}`);
-        console.log("-----------------------------------");
 
         seller.top_products = Object.entries(seller.products_sold || {})
             .map(([sku, quantity]) => ({
@@ -130,15 +120,14 @@ function analyzeSalesData(data, options) {
             .sort((a, b) => b.quantity - a.quantity) 
             .slice(0, 10);
     });
-    console.log("=================================");
 
     return sellerStats.map(seller => ({
         seller_id: seller.id,
         name: seller.name,
-        revenue: +seller.revenue.toFixed(2),
-        profit: +seller.profit.toFixed(2),
+        revenue: seller.revenue, // Выручка уже идеально круглая
+        profit: Math.round(seller.profit * 100) / 100, // Надежное финансовое округление
         sales_count: seller.sales_count,
         top_products: seller.top_products,
-        bonus: +seller.bonus.toFixed(2)
+        bonus: seller.bonus
     })); 
 }
