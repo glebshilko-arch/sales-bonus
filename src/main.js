@@ -90,13 +90,13 @@ function analyzeSalesData(data, options) {
             seller.products_sold[item.sku] += item.quantity;
         });
     }); 
-    const sellerStatsDecrease = [...sellerStats].sort((a, b) => b.profit - a.profit); 
+    sellerStats.sort((a, b) => b.profit - a.profit); 
 
-    sellerStatsDecrease.forEach((seller, index) => {
+    sellerStats.forEach((seller, index) => {
         const total = sellerStats.length;
         calculateBonusByProfit(index, total, seller);
     });
-    return sellerStatsDecrease.map(seller => ({
+    return sellerStats.map(seller => ({
         seller_id: seller.id,
         name: seller.name,
         revenue: +seller.revenue.toFixed(2),
