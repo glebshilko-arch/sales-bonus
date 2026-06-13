@@ -24,7 +24,7 @@ function calculateBonusByProfit(index, total, seller) {
             sku,
             quantity
         }))
-        .sort((a, b) => b.quantity - a.quantity) // сортировка по убыванию
+        .sort((a, b) => b.quantity - a.quantity) 
         .slice(0, 10);
 }
 
@@ -59,7 +59,8 @@ function analyzeSalesData(data, options) {
         revenue: 0,
         profit: 0,
         sales_count: 0,
-        products_sold: {}
+        products_sold: {},
+        bonus: 0
     })); 
 
     const sellerIndex = sellerStats.reduce((result, seller) => ({
@@ -74,12 +75,18 @@ function analyzeSalesData(data, options) {
 
     data.purchase_records.forEach(record => {  
         const seller = sellerIndex[record.seller_id];
+        if (!seller) {
+            throw new Error('data.purchase_records.forEach не существующий продавец')
+        }; 
         seller.sales_count += 1;;
 
         record.items.forEach(item => {
             const product = productIndex[item.sku]; 
+            if (!product) {
+            throw new Error('record.items.forEach не существующий sku')
+            }; 
             const cost = product.purchase_price * item.quantity;
-            const revenue = calculateSimpleRevenue(item);
+            const revenue = calculateRevenue(item);
             seller.revenue += revenue;
             const profit = revenue - cost;
             seller.profit += profit;
@@ -94,7 +101,7 @@ function analyzeSalesData(data, options) {
 
     sellerStats.forEach((seller, index) => {
         const total = sellerStats.length;
-        calculateBonusByProfit(index, total, seller);
+        calculateBonus(index, total, seller);
     });
     return sellerStats.map(seller => ({
         seller_id: seller.id,
