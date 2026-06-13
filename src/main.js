@@ -92,11 +92,11 @@ function analyzeSalesData(data, options) {
     }); 
     const sellerStatsDecrease = [...sellerStats].sort((a, b) => b.profit - a.profit); 
 
-    sellerStats.forEach((seller, index) => {
+    sellerStatsDecrease.forEach((seller, index) => {
         const total = sellerStats.length;
         calculateBonusByProfit(index, total, seller);
     });
-    return sellerStats.map(seller => ({
+    return sellerStatsDecrease.map(seller => ({
         seller_id: seller.id,
         name: seller.name,
         revenue: +seller.revenue.toFixed(2),
