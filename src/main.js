@@ -11,7 +11,7 @@ function calculateBonusByProfit(index, total, seller) {
 
     if (index === 0) {
         bonus = profit * 0.15;
-    } else if (index === total - 1 && total > 1) { // Проверка, что последний — это не первый
+    } else if (index === total - 1 && total > 1) { 
         bonus = 0;
     } else if (index === 1 || index === 2) {
         bonus = profit * 0.1;
@@ -109,14 +109,9 @@ function analyzeSalesData(data, options) {
             .map(([sku, quantity]) => ({
                 sku,
                 quantity
-            }))
-            .sort((a, b) => {
-                if (b.quantity !== a.quantity) {
-                    return b.quantity - a.quantity;
-                }
-                return a.sku.localeCompare(b.sku);
-            }) 
-            .slice(0, 10);
+        }))
+    .sort((a, b) => b.quantity - a.quantity) 
+    .slice(0, 10);
     });
     return sellerStats.map(seller => ({
         seller_id: seller.id,
