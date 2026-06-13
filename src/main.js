@@ -60,7 +60,6 @@ function analyzeSalesData(data, options) {
         id: seller.id,
         name: `${seller.first_name} ${seller.last_name}`,
         revenue: 0,
-        cost: 0, 
         profit: 0,
         sales_count: 0,
         products_sold: {},
@@ -89,8 +88,10 @@ function analyzeSalesData(data, options) {
             const itemRevenue = +calculateRevenue(item, product).toFixed(2);
             seller.revenue = +(seller.revenue + itemRevenue).toFixed(2);
 
-            const itemCost = product.purchase_price * item.quantity;
-            seller.cost = seller.cost + itemCost;
+           const itemCost = +(product.purchase_price * item.quantity).toFixed(2);
+            
+            const itemProfit = +(itemRevenue - itemCost).toFixed(2);
+            seller.profit = +(seller.profit + itemProfit).toFixed(2);
 
             if (!seller.products_sold[item.sku]) {
                 seller.products_sold[item.sku] = 0;
@@ -98,11 +99,6 @@ function analyzeSalesData(data, options) {
             seller.products_sold[item.sku] += item.quantity;
         });
     }); 
-
-    sellerStats.forEach(seller => {
-        // Округляем финальный результат до 2 знаков
-        seller.profit = +(seller.revenue - seller.cost).toFixed(2);
-    });
 
     sellerStats.sort((a, b) => b.profit - a.profit); 
 
