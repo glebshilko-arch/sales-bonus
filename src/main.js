@@ -105,12 +105,17 @@ function analyzeSalesData(data, options) {
         const total = sellerStats.length;
         calculateBonus(index, total, seller);
 
-        seller.top_products = Object.entries(seller.products_sold || {})
+         seller.top_products = Object.entries(seller.products_sold || {})
             .map(([sku, quantity]) => ({
                 sku,
                 quantity
             }))
-            .sort((a, b) => b.quantity - a.quantity) 
+            .sort((a, b) => {
+                if (b.quantity !== a.quantity) {
+                    return b.quantity - a.quantity;
+                }
+                return a.sku.localeCompare(b.sku);
+            }) 
             .slice(0, 10);
     });
     return sellerStats.map(seller => ({
