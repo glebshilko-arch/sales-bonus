@@ -106,8 +106,21 @@ function analyzeSalesData(data, options) {
 
     const total = sellerStats.length;
 
+    console.log("=== ОТЛАДКА ДЛЯ ПРАКТИКУМА ===");
     sellerStats.forEach((seller, index) => {
+        // Логируем то, что накопилось в нашем коде ДО вызова функции тестов
+        console.log(`Продавец: ${seller.name}`);
+        console.log(`  Позиция в рейтинге (index): ${index} из ${total}`);
+        console.log(`  Накопленная выручка: ${seller.revenue}`);
+        console.log(`  Накопленная прибыль ДО теста: ${seller.profit}`);
+
+        // Вызываем функцию бонусов из тестов
         calculateBonus(index, total, seller);
+
+        // Логируем то, что функция тестов записала в объект продавца
+        console.log(`  Бонус, который насчитал ТЕСТ: ${seller.bonus}`);
+        console.log(`  Прибыль ПОСЛЕ теста (вдруг тест её меняет?): ${seller.profit}`);
+        console.log("-----------------------------------");
 
         seller.top_products = Object.entries(seller.products_sold || {})
             .map(([sku, quantity]) => ({
@@ -117,6 +130,7 @@ function analyzeSalesData(data, options) {
             .sort((a, b) => b.quantity - a.quantity) 
             .slice(0, 10);
     });
+    console.log("=================================");
 
     return sellerStats.map(seller => ({
         seller_id: seller.id,
