@@ -18,14 +18,6 @@ function calculateBonusByProfit(index, total, seller) {
     } else {
         seller.bonus = profit * 0.05;
     }
-
-    seller.top_products = Object.entries(seller.products_sold)
-        .map(([sku, quantity]) => ({
-            sku,
-            quantity
-        }))
-        .sort((a, b) => b.quantity - a.quantity) 
-        .slice(0, 10);
 }
 
 function analyzeSalesData(data, options) {
@@ -36,6 +28,10 @@ function analyzeSalesData(data, options) {
     || !data.purchase_records) {
   throw new Error('analyzeSalesData - (Параметр data — некорректные данные)');
 }
+
+    if (data.purchase_records.length === 0) {
+        throw new Error('analyzeSalesData - (Массив purchase_records пуст)');
+    }
 
     if (typeof options !== 'object' || options === null) {
         throw new Error('analyzeSalesData -(Параметр options не обьект или ноль)')
@@ -75,18 +71,14 @@ function analyzeSalesData(data, options) {
 
     data.purchase_records.forEach(record => {  
         const seller = sellerIndex[record.seller_id];
-        if (!seller) {
-            throw new Error('data.purchase_records.forEach не существующий продавец')
-        }; 
+        if (!seller) return; 
         seller.sales_count += 1;;
 
         record.items.forEach(item => {
             const product = productIndex[item.sku]; 
-            if (!product) {
-            throw new Error('record.items.forEach не существующий sku')
-            }; 
+             if (!product) return; 
             const cost = product.purchase_price * item.quantity;
-            const revenue = calculateRevenue(item);
+            const revenue = calculateRevenue(item, product);
             seller.revenue += revenue;
             const profit = revenue - cost;
             seller.profit += profit;
@@ -102,6 +94,14 @@ function analyzeSalesData(data, options) {
     sellerStats.forEach((seller, index) => {
         const total = sellerStats.length;
         calculateBonus(index, total, seller);
+
+        seller.top_products = Object.entries(seller.products_sold || {})
+            .map(([sku, quantity]) => ({
+                sku,
+                quantity
+            }))
+            .sort((a, b) => b.quantity - a.quantity) 
+            .slice(0, 10);
     });
     return sellerStats.map(seller => ({
         seller_id: seller.id,
