@@ -6,18 +6,21 @@ function calculateSimpleRevenue(purchase, _product) {
 }
 
 function calculateBonusByProfit(index, total, seller) {
-    
     const { profit } = seller;
+    let bonus = 0;
 
     if (index === 0) {
-        seller.bonus = profit * 0.15;
+        bonus = profit * 0.15;
     } else if (index === 1 || index === 2) {
-        seller.bonus = profit * 0.1;
+        bonus = profit * 0.1;
     } else if (index === total - 1) {
-        seller.bonus = 0;
+        bonus = 0;
     } else {
-        seller.bonus = profit * 0.05;
+        bonus = profit * 0.05;
     }
+
+    seller.bonus = bonus; 
+    return bonus;
 }
 
 function analyzeSalesData(data, options) {
@@ -25,10 +28,17 @@ function analyzeSalesData(data, options) {
      if (typeof data !== 'object' 
     || data === null 
     || !data.sellers 
+    || !data.products
     || !data.purchase_records) {
-  throw new Error('analyzeSalesData - (Параметр data — некорректные данные)');
-}
+        throw new Error('analyzeSalesData - (Параметр data — некорректные данные)');
+    }
 
+    if (data.sellers.length === 0) {
+        throw new Error('analyzeSalesData - (Массив sellers пуст)');
+    }
+    if (data.products.length === 0) {
+        throw new Error('analyzeSalesData - (Массив products пуст)');
+    }
     if (data.purchase_records.length === 0) {
         throw new Error('analyzeSalesData - (Массив purchase_records пуст)');
     }
