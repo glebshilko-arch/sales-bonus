@@ -90,7 +90,7 @@ function analyzeSalesData(data, options) {
             seller.products_sold[item.sku] += item.quantity;
         });
     }); 
-    const sellerStatsDecrease = sellerStats.toSorted((a, b) => b.profit - a.profit); 
+    const sellerStatsDecrease = [...sellerStats].sort((a, b) => b.profit - a.profit); 
 
     sellerStats.forEach((seller, index) => {
         const total = sellerStats.length;
